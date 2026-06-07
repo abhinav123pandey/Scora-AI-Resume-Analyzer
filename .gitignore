@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Environment files — never commit secrets
+.env
+.env.local
+.env.production
+
+# Build output
+frontend/dist/
+frontend/.vite/
+
+# Uploaded resume files — transient, not part of the repo
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db

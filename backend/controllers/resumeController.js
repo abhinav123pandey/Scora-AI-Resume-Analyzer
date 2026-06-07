@@ -51,6 +51,10 @@ const uploadResume = async (req, res) => {
     // Step 1: Extract text from the uploaded file
     const resumeText = await extractTextFromFile(file.path);
 
+    // Delete the file immediately after extraction — we only need the text.
+    // This keeps deployment simple (Render's disk is ephemeral anyway).
+    try { fs.unlinkSync(file.path); } catch (_) {}
+
     // Step 2: Run the full AI analysis
     const analysis = await analyzeResume(resumeText, jobDescription, targetRole);
 
@@ -58,7 +62,7 @@ const uploadResume = async (req, res) => {
     const resume = await Resume.create({
       user: req.user._id,
       fileName: file.originalname,
-      filePath: file.path,
+      filePath: '',
       resumeText,
       jobDescription,
       targetRole,
