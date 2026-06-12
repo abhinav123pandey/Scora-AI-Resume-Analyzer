@@ -26,7 +26,7 @@ const PublicRoute = ({ children }) => {
 
 function AppRoutes() {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#020817]">
       <Navbar />
       <Routes>
         {/* Public routes */}

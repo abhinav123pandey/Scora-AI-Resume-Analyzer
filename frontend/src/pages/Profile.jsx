@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, LogOut, Save, Edit2, Camera } from 'lucide-react';
+import { User, Mail, LogOut, Save, Edit2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
@@ -53,45 +53,50 @@ const Profile = () => {
   const avatarFallback = (profile?.name || authUser?.name || 'U').charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10">
+    <div className="min-h-screen py-10">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
 
-        {/* Page title */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Profile</h1>
+          <h1 className="text-2xl font-bold text-white">Profile</h1>
           <p className="text-slate-500 text-sm mt-1">Manage your account and preferences</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-card">
+        <div className="bg-[#0d1526] rounded-2xl border border-blue-500/20 overflow-hidden">
           {/* Profile header */}
-          <div className="bg-gradient-to-r from-violet-600 to-violet-500 px-6 py-8">
-            <div className="flex items-end gap-4">
+          <div className="bg-gradient-to-r from-blue-700 to-blue-900 px-6 py-8 relative overflow-hidden">
+            <div className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)',
+                backgroundSize: '20px 20px'
+              }}
+            />
+            <div className="relative flex items-end gap-4">
               <div className="relative">
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}
                     alt="Profile"
-                    className="w-20 h-20 rounded-2xl object-cover ring-4 ring-white/30"
+                    className="w-20 h-20 rounded-2xl object-cover ring-4 ring-white/20"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-2xl bg-white/20 flex items-center justify-center ring-4 ring-white/30">
+                  <div className="w-20 h-20 rounded-2xl bg-blue-500/30 border border-white/20 flex items-center justify-center">
                     <span className="text-3xl font-bold text-white">{avatarFallback}</span>
                   </div>
                 )}
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 rounded-full border-2 border-white" title="Online" />
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 rounded-full border-2 border-[#0d1526]" />
               </div>
               <div>
                 {loading ? (
                   <>
-                    <Skeleton className="h-6 w-36 mb-2" />
-                    <Skeleton className="h-4 w-48" />
+                    <Skeleton className="h-6 w-36 mb-2 rounded-lg" />
+                    <Skeleton className="h-4 w-48 rounded-lg" />
                   </>
                 ) : (
                   <>
                     <h2 className="text-xl font-bold text-white">{profile?.name}</h2>
-                    <p className="text-violet-200 text-sm">{profile?.email}</p>
-                    <p className="text-violet-300 text-xs mt-1">
+                    <p className="text-blue-200 text-sm">{profile?.email}</p>
+                    <p className="text-blue-300/60 text-xs mt-1">
                       Member since {profile ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ''}
                     </p>
                   </>
@@ -103,11 +108,11 @@ const Profile = () => {
           {/* Account details */}
           <div className="p-6 space-y-5">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-semibold text-slate-900">Account Details</h3>
+              <h3 className="font-semibold text-white">Account Details</h3>
               {!loading && (
                 <button
                   onClick={() => { setIsEditing(!isEditing); if (isEditing) setFormData({ name: profile.name, email: profile.email }); }}
-                  className="flex items-center gap-1.5 text-xs font-medium text-violet-600 hover:text-violet-700 px-3 py-1.5 rounded-lg hover:bg-violet-50 transition-colors"
+                  className="flex items-center gap-1.5 text-xs font-medium text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-lg hover:bg-blue-500/10 transition-colors"
                 >
                   <Edit2 size={13} />
                   {isEditing ? 'Cancel' : 'Edit'}
@@ -125,13 +130,13 @@ const Profile = () => {
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Full Name</label>
                   <div className="relative">
-                    <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData(p => ({ ...p, name: e.target.value }))}
                       disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent disabled:bg-slate-50 disabled:text-slate-600 transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 text-sm bg-[#0a1020] border border-blue-500/20 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     />
                   </div>
                 </div>
@@ -139,13 +144,13 @@ const Profile = () => {
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Email Address</label>
                   <div className="relative">
-                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
                     <input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))}
                       disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent disabled:bg-slate-50 disabled:text-slate-600 transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 text-sm bg-[#0a1020] border border-blue-500/20 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     />
                   </div>
                 </div>
@@ -154,7 +159,7 @@ const Profile = () => {
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-60"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-60 shadow-glow-sm"
                   >
                     {saving ? (
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -168,11 +173,11 @@ const Profile = () => {
             )}
           </div>
 
-          {/* Danger zone */}
-          <div className="px-6 pb-6 border-t border-slate-100 pt-5">
+          {/* Sign out */}
+          <div className="px-6 pb-6 border-t border-blue-500/10 pt-5">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-sm text-red-600 hover:text-red-700 font-medium px-3 py-2 rounded-lg hover:bg-red-50 transition-colors"
+              className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 font-medium px-3 py-2 rounded-lg hover:bg-red-500/10 transition-colors"
             >
               <LogOut size={15} />
               Sign out of Scora

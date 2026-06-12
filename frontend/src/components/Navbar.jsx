@@ -6,14 +6,13 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-// Scora wordmark — used in navbar and other places
 export const ScoraLogo = ({ className = '' }) => (
   <Link to="/" className={`flex items-center gap-2 group ${className}`}>
-    <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-violet-500 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-violet-500/30 transition-shadow">
+    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center shadow-glow-sm group-hover:shadow-glow transition-shadow">
       <Zap className="h-4 w-4 text-white" strokeWidth={2.5} />
     </div>
-    <span className="font-bold text-lg tracking-tight text-slate-900">
-      Sco<span className="text-violet-600">ra</span>
+    <span className="font-bold text-lg tracking-tight text-white">
+      Sco<span className="text-blue-400">ra</span>
     </span>
   </Link>
 );
@@ -27,20 +26,17 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Track scroll to add shadow/backdrop when user scrolls down
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 8);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu + dropdown on route change
   useEffect(() => {
     setIsOpen(false);
     setIsProfileOpen(false);
   }, [location.pathname]);
 
-  // Close profile dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -65,23 +61,20 @@ const Navbar = () => {
     { name: 'History', path: '/history', icon: History },
   ];
 
-  // First letter of name for avatar fallback
   const avatarFallback = user?.name?.charAt(0)?.toUpperCase() || 'U';
 
   return (
     <>
       <nav className={`fixed top-0 w-full z-50 transition-all duration-200 ${
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm'
-          : 'bg-white border-b border-slate-100'
+          ? 'bg-[#020817]/95 backdrop-blur-md border-b border-blue-500/20 shadow-[0_4px_24px_rgba(0,0,0,0.5)]'
+          : 'bg-[#020817]/80 border-b border-blue-500/10'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
 
-            {/* Logo */}
             <ScoraLogo />
 
-            {/* Desktop Nav Links — only shown when logged in */}
             {isAuthenticated && (
               <div className="hidden md:flex items-center gap-1">
                 {navLinks.map(({ name, path, icon: Icon }) => (
@@ -90,84 +83,73 @@ const Navbar = () => {
                     to={path}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
                       isActive(path)
-                        ? 'bg-violet-50 text-violet-700'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                        ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <Icon size={16} className={isActive(path) ? 'text-violet-600' : 'text-slate-400'} />
+                    <Icon size={16} className={isActive(path) ? 'text-blue-400' : 'text-slate-500'} />
                     {name}
                   </Link>
                 ))}
               </div>
             )}
 
-            {/* Right side */}
             <div className="hidden md:flex items-center gap-3">
               {isAuthenticated ? (
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl border border-transparent hover:bg-slate-100 hover:border-slate-200 transition-all duration-150"
+                    className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl border border-transparent hover:bg-white/5 hover:border-blue-500/20 transition-all duration-150"
                   >
-                    {/* User avatar — Google photo or colored fallback */}
                     {user?.photoURL ? (
                       <img
                         src={user.photoURL}
                         alt={user.name}
-                        className="w-8 h-8 rounded-full object-cover ring-2 ring-violet-200"
+                        className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/40"
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white text-sm font-bold">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-sm font-bold">
                         {avatarFallback}
                       </div>
                     )}
-                    <span className="text-sm font-medium text-slate-700 max-w-[100px] truncate">
+                    <span className="text-sm font-medium text-slate-300 max-w-[100px] truncate">
                       {user?.name?.split(' ')[0]}
                     </span>
                     <ChevronDown
                       size={14}
-                      className={`text-slate-400 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`}
+                      className={`text-slate-500 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`}
                     />
                   </button>
 
-                  {/* Dropdown */}
                   {isProfileOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl border border-slate-200 shadow-lg shadow-slate-200/60 py-1 animate-fade-in z-50">
-                      {/* User info */}
-                      <div className="px-4 py-3 border-b border-slate-100">
-                        <p className="text-sm font-semibold text-slate-900 truncate">{user?.name}</p>
+                    <div className="absolute right-0 mt-2 w-56 bg-[#0d1526] rounded-xl border border-blue-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)] py-1 animate-fade-in z-50">
+                      <div className="px-4 py-3 border-b border-blue-500/10">
+                        <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
                         <p className="text-xs text-slate-500 truncate mt-0.5">{user?.email}</p>
                       </div>
 
                       <div className="py-1">
-                        <Link
-                          to="/profile"
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                        >
-                          <User size={15} className="text-slate-400" />
-                          Profile
-                        </Link>
-                        <Link
-                          to="/dashboard"
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                        >
-                          <LayoutDashboard size={15} className="text-slate-400" />
-                          Dashboard
-                        </Link>
-                        <Link
-                          to="/history"
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                        >
-                          <FileText size={15} className="text-slate-400" />
-                          My Resumes
-                        </Link>
+                        {[
+                          { to: '/profile', icon: User, label: 'Profile' },
+                          { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+                          { to: '/history', icon: FileText, label: 'My Resumes' },
+                        ].map(({ to, icon: Icon, label }) => (
+                          <Link
+                            key={to}
+                            to={to}
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-slate-300 hover:bg-blue-500/10 hover:text-white transition-colors"
+                          >
+                            <Icon size={15} className="text-slate-500" />
+                            {label}
+                          </Link>
+                        ))}
                       </div>
 
-                      <div className="border-t border-slate-100 pt-1 pb-1">
+                      <div className="border-t border-blue-500/10 pt-1 pb-1">
                         <button
                           onClick={handleLogout}
-                          className="flex items-center gap-3 px-4 py-2 w-full text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          className="flex items-center gap-3 px-4 py-2 w-full text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                         >
                           <LogOut size={15} />
                           Sign Out
@@ -180,13 +162,13 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/login"
-                    className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-3 py-2"
+                    className="text-sm font-medium text-slate-400 hover:text-white transition-colors px-3 py-2"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/login"
-                    className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg transition-colors shadow-sm"
+                    className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg transition-colors shadow-glow-sm"
                   >
                     Get Started
                   </Link>
@@ -194,33 +176,30 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Mobile menu button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+              className="md:hidden p-2 rounded-lg text-slate-400 hover:bg-white/5 transition-colors"
             >
               {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile menu */}
         {isOpen && (
-          <div className="md:hidden border-t border-slate-100 bg-white animate-fade-in">
+          <div className="md:hidden border-t border-blue-500/10 bg-[#020817] animate-fade-in">
             <div className="px-4 py-3 space-y-1">
               {isAuthenticated ? (
                 <>
-                  {/* User info in mobile */}
                   <div className="flex items-center gap-3 px-3 py-3 mb-2">
                     {user?.photoURL ? (
-                      <img src={user.photoURL} alt="" className="w-9 h-9 rounded-full ring-2 ring-violet-200" referrerPolicy="no-referrer" />
+                      <img src={user.photoURL} alt="" className="w-9 h-9 rounded-full ring-2 ring-blue-500/40" referrerPolicy="no-referrer" />
                     ) : (
-                      <div className="w-9 h-9 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
                         {avatarFallback}
                       </div>
                     )}
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">{user?.name}</p>
+                      <p className="text-sm font-semibold text-white">{user?.name}</p>
                       <p className="text-xs text-slate-500">{user?.email}</p>
                     </div>
                   </div>
@@ -231,22 +210,22 @@ const Navbar = () => {
                       to={path}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                         isActive(path)
-                          ? 'bg-violet-50 text-violet-700'
-                          : 'text-slate-700 hover:bg-slate-50'
+                          ? 'bg-blue-600/20 text-blue-300 border border-blue-500/20'
+                          : 'text-slate-400 hover:bg-white/5 hover:text-white'
                       }`}
                     >
-                      <Icon size={16} className={isActive(path) ? 'text-violet-600' : 'text-slate-400'} />
+                      <Icon size={16} className={isActive(path) ? 'text-blue-400' : 'text-slate-500'} />
                       {name}
                     </Link>
                   ))}
 
-                  <Link to="/profile" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50">
-                    <User size={16} className="text-slate-400" /> Profile
+                  <Link to="/profile" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:bg-white/5 hover:text-white">
+                    <User size={16} className="text-slate-500" /> Profile
                   </Link>
 
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50 w-full mt-1"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-400 hover:bg-red-500/10 w-full mt-1"
                   >
                     <LogOut size={16} /> Sign Out
                   </button>
@@ -255,13 +234,13 @@ const Navbar = () => {
                 <div className="space-y-2 py-2">
                   <Link
                     to="/login"
-                    className="block w-full text-center px-4 py-2.5 rounded-lg text-sm font-medium text-slate-700 border border-slate-200 hover:bg-slate-50 transition-colors"
+                    className="block w-full text-center px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 border border-blue-500/20 hover:bg-white/5 transition-colors"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/login"
-                    className="block w-full text-center px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 transition-colors"
+                    className="block w-full text-center px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors"
                   >
                     Get Started Free
                   </Link>
@@ -272,7 +251,6 @@ const Navbar = () => {
         )}
       </nav>
 
-      {/* Spacer so page content doesn't hide under fixed navbar */}
       <div className="h-16" />
     </>
   );

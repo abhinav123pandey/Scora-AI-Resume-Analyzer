@@ -6,9 +6,9 @@ import api from '../api/axios';
 import { ResumeCardSkeleton } from '../components/ui/Skeleton';
 
 const getScoreBadge = (score) => {
-  if (score >= 80) return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-  if (score >= 60) return 'bg-amber-100 text-amber-700 border-amber-200';
-  return 'bg-red-100 text-red-700 border-red-200';
+  if (score >= 80) return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+  if (score >= 60) return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+  return 'bg-red-500/10 text-red-400 border-red-500/20';
 };
 
 const History = () => {
@@ -41,18 +41,17 @@ const History = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10">
+    <div className="min-h-screen py-10">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
 
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Resume History</h1>
+            <h1 className="text-2xl font-bold text-white">Resume History</h1>
             <p className="text-slate-500 text-sm mt-1">All your past analyses in one place</p>
           </div>
           <Link
             to="/upload"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-colors shadow-glow-sm"
           >
             <Plus size={15} /> Analyze New
           </Link>
@@ -63,15 +62,15 @@ const History = () => {
             {[...Array(4)].map((_, i) => <ResumeCardSkeleton key={i} />)}
           </div>
         ) : history.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-14 text-center">
-            <div className="w-14 h-14 bg-violet-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <FileText size={22} className="text-violet-600" />
+          <div className="bg-[#0d1526] rounded-2xl border border-dashed border-blue-500/20 p-14 text-center">
+            <div className="w-14 h-14 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <FileText size={22} className="text-blue-400" />
             </div>
-            <h3 className="font-semibold text-slate-900 mb-2">No history yet</h3>
+            <h3 className="font-semibold text-white mb-2">No history yet</h3>
             <p className="text-slate-500 text-sm mb-6">Start by analyzing your first resume.</p>
             <Link
               to="/upload"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-colors shadow-glow-sm"
             >
               <Zap size={15} /> Analyze a resume
             </Link>
@@ -84,22 +83,20 @@ const History = () => {
               return (
                 <div
                   key={item._id}
-                  className="bg-white rounded-xl border border-slate-200 px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-violet-200 hover:shadow-card transition-all duration-150"
+                  className="bg-[#0d1526] rounded-xl border border-blue-500/20 px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-blue-400/40 hover:shadow-card-hover transition-all duration-150"
                 >
                   <div className="flex items-start gap-4 flex-1 min-w-0">
-                    {/* File icon */}
-                    <div className="w-10 h-10 bg-violet-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <FileText size={18} className="text-violet-600" />
+                    <div className="w-10 h-10 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <FileText size={18} className="text-blue-400" />
                     </div>
-
                     <div className="min-w-0">
-                      <p className="font-semibold text-slate-900 text-sm truncate">{item.fileName}</p>
+                      <p className="font-semibold text-white text-sm truncate">{item.fileName}</p>
                       <div className="flex items-center gap-3 mt-1">
-                        <span className="flex items-center gap-1 text-xs text-slate-400">
+                        <span className="flex items-center gap-1 text-xs text-slate-500">
                           <Calendar size={11} />
                           {new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
-                        <span className="flex items-center gap-1 text-xs text-slate-400">
+                        <span className="flex items-center gap-1 text-xs text-slate-500">
                           <TrendingUp size={11} />
                           Match: {match}%
                         </span>
@@ -111,17 +108,15 @@ const History = () => {
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${getScoreBadge(ats)}`}>
                       ATS: {ats}%
                     </span>
-
                     <Link
                       to={`/analysis/${item._id}`}
-                      className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 px-3 py-2 rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 px-3 py-2 rounded-lg transition-colors"
                     >
                       <Eye size={13} /> View
                     </Link>
-
                     <button
                       onClick={() => handleDelete(item._id, item.fileName)}
-                      className="flex items-center justify-center w-8 h-8 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="flex items-center justify-center w-8 h-8 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                       title="Delete"
                     >
                       <Trash2 size={14} />

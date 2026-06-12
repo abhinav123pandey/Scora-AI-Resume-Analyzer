@@ -9,57 +9,50 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { StatCardSkeleton, ResumeCardSkeleton } from '../components/ui/Skeleton';
 
-// Circular progress ring — pure CSS, shows ATS score visually
-const ScoreRing = ({ score, size = 64, strokeWidth = 6, color = '#7c3aed' }) => {
+const ScoreRing = ({ score, size = 64, strokeWidth = 6, color = '#3b82f6' }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (score / 100) * circumference;
-
   return (
     <div className="relative inline-flex items-center justify-center">
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#f1f5f9" strokeWidth={strokeWidth} />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#162033" strokeWidth={strokeWidth} />
         <circle
           cx={size / 2} cy={size / 2} r={radius} fill="none"
           stroke={color} strokeWidth={strokeWidth}
           strokeDasharray={circumference} strokeDashoffset={offset}
-          strokeLinecap="round"
-          className="transition-all duration-700 ease-out"
+          strokeLinecap="round" className="transition-all duration-700 ease-out"
         />
       </svg>
-      <span className="absolute text-sm font-bold text-slate-800">{score}</span>
+      <span className="absolute text-sm font-bold text-white">{score}</span>
     </div>
   );
 };
 
-// Single stat card with icon, value, and label
 const StatCard = ({ icon: Icon, label, value, sub, gradient }) => (
-  <div className={`relative overflow-hidden rounded-xl border border-white/20 p-5 ${gradient}`}>
+  <div className={`relative overflow-hidden rounded-xl border border-white/10 p-5 ${gradient}`}>
     <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-12 translate-x-12" />
     <div className="relative z-10">
-      <div className="flex items-center justify-between mb-3">
-        <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
-          <Icon size={18} className="text-white" />
-        </div>
+      <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+        <Icon size={18} className="text-white" />
       </div>
       <p className="text-3xl font-bold text-white">{value}</p>
       <p className="text-white/80 text-sm font-medium mt-0.5">{label}</p>
-      {sub && <p className="text-white/60 text-xs mt-1">{sub}</p>}
+      {sub && <p className="text-white/50 text-xs mt-1">{sub}</p>}
     </div>
   </div>
 );
 
-// Score color thresholds — used for rings and badges
 const getScoreColor = (score) => {
-  if (score >= 80) return '#10b981'; // green
-  if (score >= 60) return '#f59e0b'; // amber
-  return '#ef4444'; // red
+  if (score >= 80) return '#10b981';
+  if (score >= 60) return '#f59e0b';
+  return '#ef4444';
 };
 
 const getScoreBadge = (score) => {
-  if (score >= 80) return 'bg-emerald-100 text-emerald-700';
-  if (score >= 60) return 'bg-amber-100 text-amber-700';
-  return 'bg-red-100 text-red-700';
+  if (score >= 80) return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+  if (score >= 60) return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+  return 'bg-red-500/10 text-red-400 border-red-500/20';
 };
 
 const Dashboard = () => {
@@ -67,7 +60,6 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  // Get the time of day for the greeting
   const greeting = () => {
     const h = new Date().getHours();
     if (h < 12) return 'Good morning';
@@ -100,7 +92,6 @@ const Dashboard = () => {
     }
   };
 
-  // Computed stats from real data
   const avgAts = resumes.length
     ? Math.round(resumes.reduce((a, r) => a + (r.analysis?.atsScore || 0), 0) / resumes.length)
     : 0;
@@ -114,13 +105,13 @@ const Dashboard = () => {
   const firstName = user?.name?.split(' ')[0] || 'there';
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* ── Header ── */}
+        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-white">
               {greeting()}, {firstName} 👋
             </h1>
             <p className="text-slate-500 text-sm mt-1">
@@ -129,56 +120,32 @@ const Dashboard = () => {
           </div>
           <Link
             to="/upload"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-colors shadow-glow-sm"
           >
             <Plus size={16} />
             Analyze Resume
           </Link>
         </div>
 
-        {/* ── Stat Cards ── */}
+        {/* Stat Cards */}
         {loading ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[...Array(4)].map((_, i) => <StatCardSkeleton key={i} />)}
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 animate-slide-up">
-            <StatCard
-              icon={FileText}
-              label="Total Resumes"
-              value={resumes.length}
-              sub="uploaded so far"
-              gradient="bg-gradient-to-br from-violet-500 to-violet-700"
-            />
-            <StatCard
-              icon={BarChart3}
-              label="Avg ATS Score"
-              value={avgAts ? `${avgAts}%` : '—'}
-              sub="across all resumes"
-              gradient="bg-gradient-to-br from-blue-500 to-blue-700"
-            />
-            <StatCard
-              icon={Award}
-              label="Best Score"
-              value={bestScore ? `${bestScore}%` : '—'}
-              sub="your top performance"
-              gradient="bg-gradient-to-br from-emerald-500 to-emerald-700"
-            />
-            <StatCard
-              icon={Target}
-              label="Avg Job Match"
-              value={avgMatch ? `${avgMatch}%` : '—'}
-              sub="keyword match rate"
-              gradient="bg-gradient-to-br from-amber-500 to-orange-600"
-            />
+            <StatCard icon={FileText} label="Total Resumes" value={resumes.length} sub="uploaded so far" gradient="bg-gradient-to-br from-blue-600 to-blue-800" />
+            <StatCard icon={BarChart3} label="Avg ATS Score" value={avgAts ? `${avgAts}%` : '—'} sub="across all resumes" gradient="bg-gradient-to-br from-cyan-600 to-cyan-800" />
+            <StatCard icon={Award} label="Best Score" value={bestScore ? `${bestScore}%` : '—'} sub="your top performance" gradient="bg-gradient-to-br from-emerald-600 to-emerald-800" />
+            <StatCard icon={Target} label="Avg Job Match" value={avgMatch ? `${avgMatch}%` : '—'} sub="keyword match rate" gradient="bg-gradient-to-br from-indigo-600 to-indigo-800" />
           </div>
         )}
 
-        {/* ── Resume List ── */}
+        {/* Resume List */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-900">Your Resumes</h2>
+          <h2 className="text-lg font-semibold text-white">Your Resumes</h2>
           {resumes.length > 0 && (
-            <Link to="/history" className="text-sm text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">
+            <Link to="/history" className="text-sm text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1">
               View all <ArrowRight size={14} />
             </Link>
           )}
@@ -189,18 +156,17 @@ const Dashboard = () => {
             {[...Array(3)].map((_, i) => <ResumeCardSkeleton key={i} />)}
           </div>
         ) : resumes.length === 0 ? (
-          /* ── Empty state ── */
-          <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
-            <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Upload size={24} className="text-violet-600" />
+          <div className="bg-[#0d1526] rounded-2xl border border-dashed border-blue-500/20 p-12 text-center">
+            <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
+              <Upload size={24} className="text-blue-400" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No resumes yet</h3>
-            <p className="text-slate-500 text-sm mb-6 max-w-xs mx-auto">
+            <h3 className="text-lg font-semibold text-white mb-2">No resumes yet</h3>
+            <p className="text-slate-400 text-sm mb-6 max-w-xs mx-auto">
               Upload your resume and a job description to get your ATS score and AI-powered improvements.
             </p>
             <Link
               to="/upload"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-colors shadow-glow-sm"
             >
               <Zap size={16} />
               Analyze my first resume
@@ -214,59 +180,51 @@ const Dashboard = () => {
               return (
                 <div
                   key={resume._id}
-                  className="bg-white rounded-xl border border-slate-200 p-5 hover:border-violet-200 hover:shadow-card-hover transition-all duration-200 group"
+                  className="bg-[#0d1526] rounded-xl border border-blue-500/20 p-5 hover:border-blue-400/40 hover:shadow-card-hover transition-all duration-200 group"
                 >
-                  {/* Card header */}
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <div className="min-w-0">
-                      <p className="font-semibold text-slate-900 text-sm truncate" title={resume.fileName}>
+                      <p className="font-semibold text-white text-sm truncate" title={resume.fileName}>
                         {resume.fileName}
                       </p>
                       <div className="flex items-center gap-1 mt-1">
-                        <Clock size={12} className="text-slate-400" />
-                        <p className="text-xs text-slate-400">
+                        <Clock size={12} className="text-slate-600" />
+                        <p className="text-xs text-slate-500">
                           {new Date(resume.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </p>
                       </div>
                     </div>
-
-                    {/* ATS score ring */}
                     <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
                       <ScoreRing score={ats} size={52} strokeWidth={5} color={getScoreColor(ats)} />
-                      <span className="text-[10px] text-slate-400 font-medium">ATS</span>
+                      <span className="text-[10px] text-slate-500 font-medium">ATS</span>
                     </div>
                   </div>
 
-                  {/* Job match bar */}
                   <div className="mb-4">
                     <div className="flex justify-between text-xs text-slate-500 mb-1.5">
                       <span>Job Match</span>
-                      <span className={`font-semibold px-1.5 py-0.5 rounded-full text-[10px] ${getScoreBadge(match)}`}>
+                      <span className={`font-semibold px-1.5 py-0.5 rounded-full text-[10px] border ${getScoreBadge(match)}`}>
                         {match}%
                       </span>
                     </div>
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-[#162033] rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-700"
-                        style={{
-                          width: `${match}%`,
-                          backgroundColor: getScoreColor(match),
-                        }}
+                        style={{ width: `${match}%`, backgroundColor: getScoreColor(match) }}
                       />
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex gap-2">
                     <Link
                       to={`/analysis/${resume._id}`}
-                      className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 px-3 py-2 rounded-lg transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 px-3 py-2 rounded-lg transition-colors"
                     >
                       <Eye size={13} /> View Analysis
                     </Link>
                     <button
                       onClick={() => handleDelete(resume._id, resume.fileName)}
-                      className="flex items-center justify-center w-9 h-9 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="flex items-center justify-center w-9 h-9 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                       title="Delete"
                     >
                       <Trash2 size={14} />
@@ -276,17 +234,16 @@ const Dashboard = () => {
               );
             })}
 
-            {/* "Analyze another" card */}
             <Link
               to="/upload"
-              className="bg-white rounded-xl border-2 border-dashed border-slate-200 p-5 flex flex-col items-center justify-center text-center gap-3 hover:border-violet-300 hover:bg-violet-50/50 transition-all duration-200 min-h-[180px]"
+              className="bg-[#0d1526] rounded-xl border-2 border-dashed border-blue-500/20 p-5 flex flex-col items-center justify-center text-center gap-3 hover:border-blue-400/40 hover:bg-blue-500/5 transition-all duration-200 min-h-[180px]"
             >
-              <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center">
-                <Plus size={18} className="text-violet-600" />
+              <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
+                <Plus size={18} className="text-blue-400" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-700">Analyze another resume</p>
-                <p className="text-xs text-slate-400 mt-0.5">Upload a new resume to compare</p>
+                <p className="text-sm font-semibold text-slate-300">Analyze another resume</p>
+                <p className="text-xs text-slate-500 mt-0.5">Upload a new resume to compare</p>
               </div>
             </Link>
           </div>
