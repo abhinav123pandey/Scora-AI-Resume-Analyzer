@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, User, AlertCircle, ArrowLeft, Zap } from 'lucide-react';
-import { signInWithGoogle } from '../firebase';
+import { auth, signInWithGoogle, getRedirectResult } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 
@@ -85,26 +85,38 @@ const Login = () => {
     setError('');
   };
 
-  // ── Google sign-in ─────────────────────────────────────────────────────────
+  // ── On mount: check if we're returning from a Google redirect ──────────────
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (!result?.user) return;
+        setGoogleLoading(true);
+        const fb = result.user;
+        const { data } = await api.post('/auth/google', {
+          googleId: fb.uid,
+          name: fb.displayName,
+          email: fb.email,
+          photoURL: fb.photoURL,
+        });
+        login(data.user, data.token);
+        navigate('/dashboard');
+      } catch (err) {
+        setError(err.response?.data?.message || 'Google sign-in failed. Try again.');
+        setGoogleLoading(false);
+      }
+    };
+    handleRedirectResult();
+  }, []);
+
+  // ── Google sign-in — triggers redirect to Google ───────────────────────────
   const handleGoogle = async () => {
     setGoogleLoading(true);
     setError('');
     try {
-      const result = await signInWithGoogle();
-      const fb = result.user;
-      const { data } = await api.post('/auth/google', {
-        googleId: fb.uid,
-        name: fb.displayName,
-        email: fb.email,
-        photoURL: fb.photoURL,
-      });
-      login(data.user, data.token);
-      navigate('/dashboard');
+      await signInWithGoogle(); // browser navigates away — result is caught on return in useEffect
     } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        setError(err.response?.data?.message || 'Google sign-in failed. Try again.');
-      }
-    } finally {
+      setError('Could not start Google sign-in. Try again.');
       setGoogleLoading(false);
     }
   };
