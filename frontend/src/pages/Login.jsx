@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, User, AlertCircle, ArrowLeft, Zap } from 'lucide-react';
 import { signInWithGoogle } from '../firebase';
 import { useAuth } from '../context/AuthContext';
@@ -60,34 +60,33 @@ const Login = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
 
-  // googleError comes from AuthContext — set there after the redirect result is processed
-  const { login, googleError, clearGoogleError } = useAuth();
-  const navigate = useNavigate();
-
-  // Navigation after email/password login is handled automatically by PublicRoute
-  // in App.jsx: when isAuthenticated becomes true, PublicRoute renders <Navigate to="/dashboard">
-  // No manual navigate() call needed here.
+  const { login } = useAuth();
 
   const setField = (key) => (e) => {
     setForm(p => ({ ...p, [key]: e.target.value }));
     setError('');
   };
 
-  const switchMode = (m) => {
-    setMode(m);
-    setError('');
-    clearGoogleError();
-  };
+  const switchMode = (m) => { setMode(m); setError(''); };
 
   const handleGoogle = async () => {
     setGoogleLoading(true);
     setError('');
-    clearGoogleError();
     try {
-      await signInWithGoogle();
-      // browser navigates away — AuthContext handles getRedirectResult on return
+      const result = await signInWithGoogle();
+      const fb = result.user;
+      const { data } = await api.post('/auth/google', {
+        googleId: fb.uid,
+        name: fb.displayName,
+        email: fb.email,
+        photoURL: fb.photoURL,
+      });
+      login(data.user, data.token);
+      // PublicRoute in App.jsx navigates to /dashboard when isAuthenticated flips to true
     } catch (err) {
-      setError('Could not start Google sign-in. Try again.');
+      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
+        setError(err.response?.data?.message || 'Google sign-in failed. Try again.');
+      }
       setGoogleLoading(false);
     }
   };
@@ -269,11 +268,10 @@ const Login = () => {
                 {mode === 'signin' ? 'Sign in to your Scora account' : 'Start analyzing your resume for free'}
               </p>
 
-              {/* Show local error OR googleError from AuthContext (set after redirect) */}
-              {(error || googleError) && (
+              {error && (
                 <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4 animate-fade-in">
                   <AlertCircle size={15} className="mt-0.5 flex-shrink-0" />
-                  {error || googleError}
+                  {error}
                 </div>
               )}
 
