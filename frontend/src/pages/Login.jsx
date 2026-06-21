@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, User, AlertCircle, ArrowLeft, Zap } from 'lucide-react';
-import { auth, signInWithGoogle, getRedirectResult } from '../firebase';
+import { signInWithGoogle } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 
@@ -60,49 +60,32 @@ const Login = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
 
-  const { login, isAuthenticated } = useAuth();
+  // googleError comes from AuthContext — set there after the redirect result is processed
+  const { login, googleError, clearGoogleError } = useAuth();
   const navigate = useNavigate();
 
-  // Navigate to dashboard once auth state is committed — fixes the race condition
-  // where navigate() fires before React applies the setToken() state update
-  useEffect(() => {
-    if (isAuthenticated) navigate('/dashboard', { replace: true });
-  }, [isAuthenticated, navigate]);
-
-  // On mount: check if returning from Google redirect
-  useEffect(() => {
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (!result?.user) return;
-        setGoogleLoading(true);
-        const fb = result.user;
-        const { data } = await api.post('/auth/google', {
-          googleId: fb.uid,
-          name: fb.displayName,
-          email: fb.email,
-          photoURL: fb.photoURL,
-        });
-        login(data.user, data.token);
-        // navigate handled by the isAuthenticated effect above
-      } catch (err) {
-        setError(err.response?.data?.message || 'Google sign-in failed. Try again.');
-        setGoogleLoading(false);
-      }
-    };
-    handleRedirectResult();
-  }, []);
+  // Navigation after email/password login is handled automatically by PublicRoute
+  // in App.jsx: when isAuthenticated becomes true, PublicRoute renders <Navigate to="/dashboard">
+  // No manual navigate() call needed here.
 
   const setField = (key) => (e) => {
     setForm(p => ({ ...p, [key]: e.target.value }));
     setError('');
   };
 
+  const switchMode = (m) => {
+    setMode(m);
+    setError('');
+    clearGoogleError();
+  };
+
   const handleGoogle = async () => {
     setGoogleLoading(true);
     setError('');
+    clearGoogleError();
     try {
-      await signInWithGoogle(); // redirects browser — result caught on return via useEffect above
+      await signInWithGoogle();
+      // browser navigates away — AuthContext handles getRedirectResult on return
     } catch (err) {
       setError('Could not start Google sign-in. Try again.');
       setGoogleLoading(false);
@@ -117,7 +100,7 @@ const Login = () => {
     try {
       const { data } = await api.post('/auth/login', { email: form.email, password: form.password });
       login(data.user, data.token);
-      // navigate handled by the isAuthenticated effect
+      // PublicRoute navigates to /dashboard once isAuthenticated flips to true
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid email or password.');
     } finally {
@@ -134,7 +117,6 @@ const Login = () => {
     try {
       const { data } = await api.post('/auth/signup', { name: form.name, email: form.email, password: form.password });
       login(data.user, data.token);
-      // navigate handled by the isAuthenticated effect
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed. Please try again.');
     } finally {
@@ -223,7 +205,7 @@ const Login = () => {
           {mode === 'forgot' ? (
             <>
               <button
-                onClick={() => { setMode('signin'); setError(''); setSuccessMsg(''); }}
+                onClick={() => { switchMode('signin'); setSuccessMsg(''); }}
                 className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-300 mb-6 transition-colors"
               >
                 <ArrowLeft size={14} /> Back to sign in
@@ -259,7 +241,7 @@ const Login = () => {
               {/* Tab switcher */}
               <div className="flex bg-[#0d1526] border border-blue-500/20 rounded-xl p-1 mb-7">
                 <button
-                  onClick={() => { setMode('signin'); setError(''); }}
+                  onClick={() => switchMode('signin')}
                   className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
                     mode === 'signin'
                       ? 'bg-blue-600 text-white shadow-sm'
@@ -269,7 +251,7 @@ const Login = () => {
                   Sign In
                 </button>
                 <button
-                  onClick={() => { setMode('signup'); setError(''); }}
+                  onClick={() => switchMode('signup')}
                   className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
                     mode === 'signup'
                       ? 'bg-blue-600 text-white shadow-sm'
@@ -287,9 +269,11 @@ const Login = () => {
                 {mode === 'signin' ? 'Sign in to your Scora account' : 'Start analyzing your resume for free'}
               </p>
 
-              {error && (
+              {/* Show local error OR googleError from AuthContext (set after redirect) */}
+              {(error || googleError) && (
                 <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4 animate-fade-in">
-                  <AlertCircle size={15} className="mt-0.5 flex-shrink-0" />{error}
+                  <AlertCircle size={15} className="mt-0.5 flex-shrink-0" />
+                  {error || googleError}
                 </div>
               )}
 
@@ -315,7 +299,7 @@ const Login = () => {
                   <div className="flex justify-end">
                     <button
                       type="button"
-                      onClick={() => { setMode('forgot'); setError(''); }}
+                      onClick={() => switchMode('forgot')}
                       className="text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors"
                     >
                       Forgot password?
@@ -339,7 +323,7 @@ const Login = () => {
               <p className="text-center text-xs text-slate-500 mt-5">
                 {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
                 <button
-                  onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); }}
+                  onClick={() => switchMode(mode === 'signin' ? 'signup' : 'signin')}
                   className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
                 >
                   {mode === 'signin' ? 'Sign up for free' : 'Sign in'}
